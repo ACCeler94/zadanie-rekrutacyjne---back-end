@@ -1,5 +1,7 @@
-import filterOrdersByWorth from '../utils/filterOrdersByWorth';
-import getOrdersFromFile from '../utils/getOrdersFromFile';
+import filterOrdersByWorth from '../utils/filterOrdersByWorth.js';
+import getOrdersFromFile from '../utils/getOrdersFromFile.js';
+import { json2csv } from 'json-2-csv';
+
 
 const OrdersController = {
   getOrders: async (req, res, next) => {
@@ -34,7 +36,46 @@ const OrdersController = {
     } catch (error) {
       next(error);
     }
-  }
+  },
+
+  getOrdersCSV: async (req, res, next) => {
+    try {
+      const orderData = await getOrdersFromFile();
+
+      if (!orderData || orderData.length === 0) {
+        return res.status(404).json({ error: 'No orders found' });
+      }
+
+      const allowedQueries = ['minWorth', 'maxWorth'];
+      const queryKeys = Object.keys(req.query);
+
+      const unknownParams = queryKeys.filter(key => !allowedQueries.includes(key));
+      if (unknownParams.length > 0) {
+        return res.status(400).json({
+          error: `Unknown query parameters: ${unknownParams.join(', ')}. Only 'minWorth' and 'maxWorth' are allowed.`
+        });
+      }
+
+      const { minWorth, maxWorth } = req.query;
+
+      // Filter orders if minWorth and maxWorth present, if not - use all orders
+      const filteredOrders = (minWorth && maxWorth)
+        ? filterOrdersByWorth(orderData, { minWorth, maxWorth })
+        : orderData;
+
+      // Convert filteredOrders to CSV string
+      const csvData = await json2csv(filteredOrders);
+
+      // Send csv data for download
+      res.status(200)
+        .header('Content-Type', 'text/csv')
+        .attachment('orders.csv')
+        .send(csvData);
+
+    } catch (error) {
+      next(error);
+    }
+  },
 }
 
 
