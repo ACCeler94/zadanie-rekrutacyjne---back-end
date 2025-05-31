@@ -1,8 +1,9 @@
+import timeout from 'connect-timeout';
 import express from 'express';
 import './config/env.js';
 import updateOrdersDaily from './jobs/updateOrdersDaily.js';
+import basicAuthMiddleware from './middleware/basicAuthMiddleware.js';
 import { orderRoutes } from './routes/orders.routes.js';
-import timeout from 'connect-timeout';
 
 
 const app = express();
@@ -16,7 +17,7 @@ app.use((req, res, next) => {
   if (!req.timedout) next();
 });
 
-app.use('/api', orderRoutes)
+app.use('/api', basicAuthMiddleware, orderRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found.' });
