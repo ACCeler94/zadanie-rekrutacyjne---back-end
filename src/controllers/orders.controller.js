@@ -76,6 +76,30 @@ const OrdersController = {
       next(error);
     }
   },
+
+  getOrderById: async (req, res, next) => {
+    const { id } = req.params
+
+    if (!id) return res.status(400).json({ error: 'Missing order id.' })
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) return res.status(400).json({ error: 'Invalid id. Id must be a number.' })
+
+    try {
+      const orderData = await getOrdersFromFile();
+
+      if (!orderData || orderData.length === 0) {
+        return res.status(404).json({ error: 'No orders found' });
+      }
+
+      const order = orderData.find(o => o.orderID === parsedId)
+
+      if (!order) return res.status(404).json({ error: 'No order with this id was found.' });
+
+      return res.status(200).json(order)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 
