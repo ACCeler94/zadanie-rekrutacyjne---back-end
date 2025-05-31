@@ -1,7 +1,7 @@
+import { endOfYesterday, format, startOfYesterday } from 'date-fns';
 import cron from 'node-cron';
-import fetchOrdersByDate from '../utils/fetchOrdersByDate';
-import { endOfYesterday, startOfYesterday, format } from 'date-fns';
-import saveOrdersToJSON from '../utils/saveOrdersToJSON';
+import fetchOrdersByDate from '../utils/fetchOrdersByDate.js';
+import saveOrdersToJSON from '../utils/saveOrdersToJSON.js';
 
 
 const updateOrdersDaily = () => {
