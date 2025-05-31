@@ -41,7 +41,7 @@ const fetchAllOrders = async () => {
     }
   }
 
-  saveOrdersToJSON(allOrders);
+  await saveOrdersToJSON(allOrders);
 }
 
 fetchAllOrders();
